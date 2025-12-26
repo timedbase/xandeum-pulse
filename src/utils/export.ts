@@ -39,34 +39,39 @@ export function exportNodesAsCSV(nodes: PNode[], filename = 'pnodes-export.csv')
     'Gossip Address',
     'pRPC Address',
     'Version',
-    'Uptime (%)',
-    'Storage Capacity (GB)',
+    'Uptime (seconds)',
+    'Storage Committed (GB)',
     'Storage Used (GB)',
     'Storage Utilization (%)',
+    'CPU Percent',
     'Credits',
     'Region',
     'Last Seen',
-    'Shard Version',
-    'Feature Set',
   ];
 
-  const rows = nodes.map(node => [
-    node.pubkey,
-    node.status,
-    node.gossip,
-    node.prpc,
-    node.version,
-    node.uptime,
-    node.storageCapacity,
-    node.storageUsed,
-    ((node.storageUsed / node.storageCapacity) * 100).toFixed(2),
-    node.credits,
-    node.replicaSets,
-    node.region || '',
-    node.lastSeen,
-    node.shredVersion,
-    node.featureSet,
-  ]);
+  const rows = nodes.map(node => {
+    const storageCommittedGB = node.storageCommitted ? (node.storageCommitted / (1024 ** 3)).toFixed(2) : 'N/A';
+    const storageUsedGB = node.storageUsed ? (node.storageUsed / (1024 ** 3)).toFixed(2) : 'N/A';
+    const utilization = node.storageUsed && node.storageCommitted && node.storageCommitted > 0
+      ? ((node.storageUsed / node.storageCommitted) * 100).toFixed(2)
+      : 'N/A';
+
+    return [
+      node.pubkey,
+      node.status,
+      node.gossip,
+      node.prpc,
+      node.version,
+      node.uptimeSeconds || 0,
+      storageCommittedGB,
+      storageUsedGB,
+      utilization,
+      node.cpuPercent !== undefined && node.cpuPercent !== null ? node.cpuPercent.toFixed(1) : 'N/A',
+      node.credits !== undefined && node.credits !== null ? node.credits : 'N/A',
+      node.region || '',
+      node.lastSeen,
+    ];
+  });
 
   const csv = [
     headers.join(','),
@@ -88,7 +93,12 @@ export function exportNodesAsCSV(nodes: PNode[], filename = 'pnodes-export.csv')
  */
 export function exportNodesAsText(nodes: PNode[], filename = 'pnodes-export.txt') {
   const content = nodes.map(node => {
-    const utilization = ((node.storageUsed / node.storageCapacity) * 100).toFixed(2);
+    const storageCommittedGB = node.storageCommitted ? (node.storageCommitted / (1024 ** 3)).toFixed(2) : 'N/A';
+    const storageUsedGB = node.storageUsed ? (node.storageUsed / (1024 ** 3)).toFixed(2) : 'N/A';
+    const utilization = node.storageUsed && node.storageCommitted && node.storageCommitted > 0
+      ? ((node.storageUsed / node.storageCommitted) * 100).toFixed(2)
+      : 'N/A';
+
     return `
 === pNode: ${node.pubkey} ===
 Status: ${node.status}
@@ -96,12 +106,11 @@ Version: ${node.version}
 Region: ${node.region || 'Unknown'}
 Gossip: ${node.gossip}
 pRPC: ${node.prpc}
-Uptime: ${node.uptime}%
-Storage: ${node.storageUsed} GB / ${node.storageCapacity} GB (${utilization}%)
-Credits: ${node.credits}
+Uptime: ${node.uptimeSeconds || 0} seconds
+Storage: ${storageUsedGB} GB / ${storageCommittedGB} GB (${utilization}%)
+CPU: ${node.cpuPercent !== undefined && node.cpuPercent !== null ? node.cpuPercent.toFixed(1) + '%' : 'N/A'}
+Credits: ${node.credits !== undefined && node.credits !== null ? node.credits : 'N/A'}
 Last Seen: ${node.lastSeen}
-Shard Version: ${node.shredVersion}
-Feature Set: ${node.featureSet}
 `.trim();
   }).join('\n\n' + '='.repeat(60) + '\n\n');
 
@@ -143,10 +152,11 @@ export function exportNetworkStats(
         'Metric,Value',
         `Total Nodes,${stats.totalNodes}`,
         `Online Nodes,${stats.onlineNodes}`,
-        `Total Storage (TB),${stats.totalStorage}`,
-        `Used Storage (TB),${stats.usedStorage}`,
-        `Total Credits,${stats.totalCredits}`,
-        `Average Uptime (%),${stats.avgUptime}`,
+        `Total Storage Committed (TB),${(stats.totalStorageCommitted / (1024 ** 4)).toFixed(2)}`,
+        `Total Storage Used (TB),${(stats.totalStorageUsed / (1024 ** 4)).toFixed(2)}`,
+        `Avg Storage Usage (%),${stats.avgStorageUsagePercent.toFixed(2)}`,
+        `Average Uptime (seconds),${stats.avgUptimeSeconds}`,
+        `Average CPU (%),${stats.avgCpuPercent !== undefined ? stats.avgCpuPercent.toFixed(2) : 'N/A'}`,
         `Network Version,${stats.networkVersion}`,
         '',
         'Cluster Information',
@@ -169,10 +179,11 @@ NETWORK STATISTICS
 ------------------
 Total Nodes: ${stats.totalNodes}
 Online Nodes: ${stats.onlineNodes}
-Total Storage: ${stats.totalStorage} TB
-Used Storage: ${stats.usedStorage} TB
-Total Credits: ${stats.totalCredits}
-Average Uptime: ${stats.avgUptime}%
+Total Storage Committed: ${(stats.totalStorageCommitted / (1024 ** 4)).toFixed(2)} TB
+Total Storage Used: ${(stats.totalStorageUsed / (1024 ** 4)).toFixed(2)} TB
+Avg Storage Usage: ${stats.avgStorageUsagePercent.toFixed(2)}%
+Average Uptime: ${stats.avgUptimeSeconds} seconds
+Average CPU: ${stats.avgCpuPercent !== undefined ? stats.avgCpuPercent.toFixed(2) + '%' : 'N/A'}
 Network Version: ${stats.networkVersion}
 
 CLUSTER INFORMATION
