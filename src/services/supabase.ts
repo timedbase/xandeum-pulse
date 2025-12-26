@@ -160,6 +160,7 @@ export async function recordNetworkStats(stats: NetworkStats) {
         avg_cpu_percent: stats.avgCpuPercent || null,
         avg_ram_usage_percent: stats.avgRamUsagePercent || null,
         total_active_streams: stats.totalActiveStreams || null,
+        total_credits: stats.totalCredits || null,
         network_version: stats.networkVersion,
       })
       .select()

@@ -58,6 +58,12 @@ function calculateNetworkStats(nodes: PNode[]): NetworkStats {
 
   const totalActiveStreams = nodes.reduce((acc, n) => acc + (n.activeStreams || 0), 0);
 
+  // Calculate total credits
+  const nodesWithCredits = nodes.filter(n => n.credits !== undefined && n.credits !== null);
+  const totalCredits = nodesWithCredits.length > 0
+    ? nodesWithCredits.reduce((acc, n) => acc + (n.credits || 0), 0)
+    : undefined;
+
   return {
     totalNodes: nodes.length,
     onlineNodes,
@@ -68,6 +74,7 @@ function calculateNetworkStats(nodes: PNode[]): NetworkStats {
     avgCpuPercent: avgCpuPercent ? Math.round(avgCpuPercent * 100) / 100 : undefined,
     avgRamUsagePercent: avgRamUsagePercent ? Math.round(avgRamUsagePercent * 100) / 100 : undefined,
     totalActiveStreams,
+    totalCredits,
     networkVersion: 'v0.6 Stuttgart',
   };
 }
