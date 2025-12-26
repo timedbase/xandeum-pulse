@@ -11,33 +11,47 @@ interface AdvancedAnalyticsProps {
 
 export function AdvancedAnalytics({ nodes }: AdvancedAnalyticsProps) {
   const analytics = useMemo(() => {
-    // Performance distribution
+    // Performance distribution (calculate uptime percentage from uptimeSeconds)
     const performanceBuckets = {
-      excellent: nodes.filter(n => n.uptime >= 99).length,
-      good: nodes.filter(n => n.uptime >= 95 && n.uptime < 99).length,
-      fair: nodes.filter(n => n.uptime >= 90 && n.uptime < 95).length,
-      poor: nodes.filter(n => n.uptime < 90).length,
+      excellent: nodes.filter(n => {
+        const uptimePercent = n.uptimeSeconds ? (n.uptimeSeconds / (24 * 3600)) * 100 : 0;
+        return uptimePercent >= 99;
+      }).length,
+      good: nodes.filter(n => {
+        const uptimePercent = n.uptimeSeconds ? (n.uptimeSeconds / (24 * 3600)) * 100 : 0;
+        return uptimePercent >= 95 && uptimePercent < 99;
+      }).length,
+      fair: nodes.filter(n => {
+        const uptimePercent = n.uptimeSeconds ? (n.uptimeSeconds / (24 * 3600)) * 100 : 0;
+        return uptimePercent >= 90 && uptimePercent < 95;
+      }).length,
+      poor: nodes.filter(n => {
+        const uptimePercent = n.uptimeSeconds ? (n.uptimeSeconds / (24 * 3600)) * 100 : 0;
+        return uptimePercent < 90;
+      }).length,
     };
 
     // Storage utilization by range
-    const storageUtilization = nodes.map(node => {
-      const util = (node.storageUsed / node.storageCapacity) * 100;
-      return {
-        pubkey: node.pubkey.slice(0, 8),
-        utilization: Math.round(util),
-        capacity: node.storageCapacity,
-        used: node.storageUsed,
-        status: node.status,
-      };
-    }).sort((a, b) => b.utilization - a.utilization);
+    const storageUtilization = nodes
+      .filter(node => node.storageCommitted && node.storageCommitted > 0)
+      .map(node => {
+        const util = node.storageCommitted ? (node.storageUsed / node.storageCommitted) * 100 : 0;
+        return {
+          pubkey: node.pubkey.slice(0, 8),
+          utilization: Math.round(util),
+          capacity: node.storageCommitted,
+          used: node.storageUsed,
+          status: node.status,
+        };
+      }).sort((a, b) => b.utilization - a.utilization);
 
     // Credits distribution
     const creditsDistribution = [
-      { range: '0-1K', count: nodes.filter(n => n.credits < 1000).length },
-      { range: '1K-5K', count: nodes.filter(n => n.credits >= 1000 && n.credits < 5000).length },
-      { range: '5K-10K', count: nodes.filter(n => n.credits >= 5000 && n.credits < 10000).length },
-      { range: '10K-25K', count: nodes.filter(n => n.credits >= 10000 && n.credits < 25000).length },
-      { range: '25K+', count: nodes.filter(n => n.credits >= 25000).length },
+      { range: '0-1K', count: nodes.filter(n => n.credits !== undefined && n.credits !== null && n.credits < 1000).length },
+      { range: '1K-5K', count: nodes.filter(n => n.credits !== undefined && n.credits !== null && n.credits >= 1000 && n.credits < 5000).length },
+      { range: '5K-10K', count: nodes.filter(n => n.credits !== undefined && n.credits !== null && n.credits >= 5000 && n.credits < 10000).length },
+      { range: '10K-25K', count: nodes.filter(n => n.credits !== undefined && n.credits !== null && n.credits >= 10000 && n.credits < 25000).length },
+      { range: '25K+', count: nodes.filter(n => n.credits !== undefined && n.credits !== null && n.credits >= 25000).length },
     ];
 
     // Version distribution
@@ -55,45 +69,52 @@ export function AdvancedAnalytics({ nodes }: AdvancedAnalyticsProps) {
         if (!acc[region]) {
           acc[region] = { region, totalUptime: 0, count: 0, totalStorage: 0 };
         }
-        acc[region].totalUptime += node.uptime;
+        const uptimePercent = node.uptimeSeconds ? (node.uptimeSeconds / (24 * 3600)) * 100 : 0;
+        acc[region].totalUptime += uptimePercent;
         acc[region].count += 1;
-        acc[region].totalStorage += node.storageCapacity;
+        acc[region].totalStorage += node.storageCommitted || 0;
         return acc;
       }, {} as Record<string, { region: string; totalUptime: number; count: number; totalStorage: number }>)
     ).map(([_, data]) => ({
       region: data.region,
       avgUptime: Math.round(data.totalUptime / data.count),
       nodeCount: data.count,
-      totalStorage: Math.round(data.totalStorage / 1000), // Convert to TB
+      totalStorage: Math.round(data.totalStorage / (1024 ** 4)), // Convert bytes to TB
     }));
 
     // Capacity vs Utilization scatter
-    const capacityVsUtil = nodes.map(node => ({
-      capacity: node.storageCapacity,
-      utilization: Math.round((node.storageUsed / node.storageCapacity) * 100),
-      credits: node.credits,
-      status: node.status,
-    }));
+    const capacityVsUtil = nodes
+      .filter(node => node.storageCommitted && node.storageCommitted > 0)
+      .map(node => ({
+        capacity: node.storageCommitted,
+        utilization: node.storageCommitted ? Math.round((node.storageUsed / node.storageCommitted) * 100) : 0,
+        credits: node.credits || 0,
+        status: node.status,
+      }));
 
     // Top performers
     const topPerformers = [...nodes]
-      .sort((a, b) => b.credits - a.credits)
+      .filter(n => n.credits !== undefined && n.credits !== null)
+      .sort((a, b) => (b.credits || 0) - (a.credits || 0))
       .slice(0, 10)
-      .map(node => ({
-        pubkey: node.pubkey.slice(0, 12),
-        credits: node.credits,
-        uptime: node.uptime,
-        storage: Math.round(node.storageUsed / 1000), // GB to TB
-      }));
+      .map(node => {
+        const uptimePercent = node.uptimeSeconds ? (node.uptimeSeconds / (24 * 3600)) * 100 : 0;
+        return {
+          pubkey: node.pubkey.slice(0, 12),
+          credits: node.credits || 0,
+          uptime: Math.round(uptimePercent),
+          storage: Math.round(node.storageUsed / (1024 ** 4)), // Bytes to TB
+        };
+      });
 
-    // Replica sets distribution
-    const replicaSetsDistribution = Object.entries(
+    // Status distribution (instead of replica sets which doesn't exist)
+    const statusDistribution = Object.entries(
       nodes.reduce((acc, node) => {
-        acc[node.replicaSets] = (acc[node.replicaSets] || 0) + 1;
+        acc[node.status] = (acc[node.status] || 0) + 1;
         return acc;
-      }, {} as Record<number, number>)
-    ).map(([sets, count]) => ({ sets: `${sets} sets`, count }))
-      .sort((a, b) => parseInt(a.sets) - parseInt(b.sets));
+      }, {} as Record<string, number>)
+    ).map(([status, count]) => ({ status, count }))
+      .sort((a, b) => b.count - a.count);
 
     return {
       performanceBuckets,
@@ -103,7 +124,7 @@ export function AdvancedAnalytics({ nodes }: AdvancedAnalyticsProps) {
       regionalPerformance,
       capacityVsUtil,
       topPerformers,
-      replicaSetsDistribution,
+      statusDistribution,
     };
   }, [nodes]);
 

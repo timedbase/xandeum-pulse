@@ -159,6 +159,7 @@ export class RpcClient {
           avgCpuPercent: latestStats.avg_cpu_percent,
           avgRamUsagePercent: latestStats.avg_ram_usage_percent,
           totalActiveStreams: latestStats.total_active_streams,
+          totalCredits: latestStats.total_credits,
           networkVersion: latestStats.network_version,
         };
       }
