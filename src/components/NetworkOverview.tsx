@@ -67,7 +67,7 @@ export function NetworkOverview({ stats }: NetworkOverviewProps) {
           icon={<TrendingUp className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-3.5 lg:h-3.5" />}
         />
 
-        {stats.avgCpuPercent !== undefined && (
+        {stats.avgCpuPercent !== undefined && stats.avgCpuPercent !== null && (
           <StatCard
             title="Avg CPU"
             value={`${stats.avgCpuPercent.toFixed(1)}%`}

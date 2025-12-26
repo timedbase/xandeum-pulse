@@ -152,11 +152,11 @@ export function exportNetworkStats(
         'Metric,Value',
         `Total Nodes,${stats.totalNodes}`,
         `Online Nodes,${stats.onlineNodes}`,
-        `Total Storage Committed (TB),${(stats.totalStorageCommitted / (1024 ** 4)).toFixed(2)}`,
-        `Total Storage Used (TB),${(stats.totalStorageUsed / (1024 ** 4)).toFixed(2)}`,
-        `Avg Storage Usage (%),${stats.avgStorageUsagePercent.toFixed(2)}`,
-        `Average Uptime (seconds),${stats.avgUptimeSeconds}`,
-        `Average CPU (%),${stats.avgCpuPercent !== undefined ? stats.avgCpuPercent.toFixed(2) : 'N/A'}`,
+        `Total Storage Committed (TB),${stats.totalStorageCommitted !== undefined && stats.totalStorageCommitted !== null ? (stats.totalStorageCommitted / (1024 ** 4)).toFixed(2) : 'N/A'}`,
+        `Total Storage Used (TB),${stats.totalStorageUsed !== undefined && stats.totalStorageUsed !== null ? (stats.totalStorageUsed / (1024 ** 4)).toFixed(2) : 'N/A'}`,
+        `Avg Storage Usage (%),${stats.avgStorageUsagePercent !== undefined && stats.avgStorageUsagePercent !== null ? stats.avgStorageUsagePercent.toFixed(2) : 'N/A'}`,
+        `Average Uptime (seconds),${stats.avgUptimeSeconds !== undefined && stats.avgUptimeSeconds !== null ? stats.avgUptimeSeconds : 'N/A'}`,
+        `Average CPU (%),${stats.avgCpuPercent !== undefined && stats.avgCpuPercent !== null ? stats.avgCpuPercent.toFixed(2) : 'N/A'}`,
         `Network Version,${stats.networkVersion}`,
         '',
         'Cluster Information',
@@ -179,11 +179,11 @@ NETWORK STATISTICS
 ------------------
 Total Nodes: ${stats.totalNodes}
 Online Nodes: ${stats.onlineNodes}
-Total Storage Committed: ${(stats.totalStorageCommitted / (1024 ** 4)).toFixed(2)} TB
-Total Storage Used: ${(stats.totalStorageUsed / (1024 ** 4)).toFixed(2)} TB
-Avg Storage Usage: ${stats.avgStorageUsagePercent.toFixed(2)}%
-Average Uptime: ${stats.avgUptimeSeconds} seconds
-Average CPU: ${stats.avgCpuPercent !== undefined ? stats.avgCpuPercent.toFixed(2) + '%' : 'N/A'}
+Total Storage Committed: ${stats.totalStorageCommitted !== undefined && stats.totalStorageCommitted !== null ? (stats.totalStorageCommitted / (1024 ** 4)).toFixed(2) + ' TB' : 'N/A'}
+Total Storage Used: ${stats.totalStorageUsed !== undefined && stats.totalStorageUsed !== null ? (stats.totalStorageUsed / (1024 ** 4)).toFixed(2) + ' TB' : 'N/A'}
+Avg Storage Usage: ${stats.avgStorageUsagePercent !== undefined && stats.avgStorageUsagePercent !== null ? stats.avgStorageUsagePercent.toFixed(2) + '%' : 'N/A'}
+Average Uptime: ${stats.avgUptimeSeconds !== undefined && stats.avgUptimeSeconds !== null ? stats.avgUptimeSeconds + ' seconds' : 'N/A'}
+Average CPU: ${stats.avgCpuPercent !== undefined && stats.avgCpuPercent !== null ? stats.avgCpuPercent.toFixed(2) + '%' : 'N/A'}
 Network Version: ${stats.networkVersion}
 
 CLUSTER INFORMATION

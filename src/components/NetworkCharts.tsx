@@ -304,7 +304,7 @@ export function NetworkCharts({ nodes }: NetworkChartsProps) {
                                     : 'N/A'}
                                 </span>
                               </div>
-                              {node.cpuPercent !== undefined && (
+                              {node.cpuPercent !== undefined && node.cpuPercent !== null && (
                                 <div className="flex items-center justify-between">
                                   <span className="text-muted-foreground">CPU:</span>
                                   <span className="font-mono text-foreground">{node.cpuPercent.toFixed(1)}%</span>
