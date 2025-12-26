@@ -1,0 +1,5 @@
+*.md
+*.log
+.env.example
+.eslintrc.json
+logs/

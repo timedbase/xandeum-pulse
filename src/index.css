@@ -1,0 +1,218 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Clean, Professional Design System */
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 220 16% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 16% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 16% 12%;
+
+    --primary: 172 66% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 16% 12%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 10% 40%;
+
+    --accent: 172 66% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 220 13% 88%;
+    --input: 220 13% 88%;
+    --ring: 172 66% 50%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 220 16% 12%;
+    --sidebar-primary: 172 66% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 220 16% 12%;
+    --sidebar-border: 220 13% 88%;
+    --sidebar-ring: 172 66% 50%;
+  }
+
+  .dark {
+    --background: 220 16% 6%;
+    --foreground: 220 10% 92%;
+
+    --card: 220 16% 9%;
+    --card-foreground: 220 10% 92%;
+
+    --popover: 220 16% 11%;
+    --popover-foreground: 220 10% 92%;
+
+    --primary: 172 66% 50%;
+    --primary-foreground: 220 16% 6%;
+
+    --secondary: 220 14% 14%;
+    --secondary-foreground: 220 10% 75%;
+
+    --muted: 220 14% 14%;
+    --muted-foreground: 220 10% 50%;
+
+    --accent: 172 66% 50%;
+    --accent-foreground: 220 16% 6%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 220 16% 6%;
+
+    --border: 220 13% 18%;
+    --input: 220 14% 14%;
+    --ring: 172 66% 50%;
+
+    --sidebar-background: 220 16% 8%;
+    --sidebar-foreground: 220 10% 90%;
+    --sidebar-primary: 172 66% 50%;
+    --sidebar-primary-foreground: 220 16% 6%;
+    --sidebar-accent: 220 14% 14%;
+    --sidebar-accent-foreground: 220 10% 90%;
+    --sidebar-border: 220 13% 18%;
+    --sidebar-ring: 172 66% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70;
+  }
+}
+
+@layer components {
+  .card-base {
+    @apply rounded-lg border border-border bg-card;
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+/* Animated border animations for pNode cards */
+@keyframes border-trace {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -300;
+  }
+}
+
+.animate-border-trace-green {
+  animation: border-trace 3s linear infinite;
+}
+
+.animate-border-trace-yellow {
+  animation: border-trace 4s linear infinite;
+}
+
+.animate-border-trace-red {
+  animation: border-trace 5s linear infinite;
+}
+
+/* Slow pulse animation for map markers */
+@keyframes ping-slow {
+  0% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.animate-ping-slow {
+  animation: ping-slow 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Color cycle animation for header text */
+@keyframes color-cycle {
+  0%, 100% {
+    color: hsl(var(--muted-foreground));
+  }
+  25% {
+    color: #FF9800;
+  }
+  50% {
+    color: hsl(var(--muted-foreground));
+  }
+  75% {
+    color: #812E71;
+  }
+}
+
+.animate-color-cycle-1 {
+  animation: color-cycle 6s ease-in-out infinite;
+  animation-delay: 0s;
+}
+
+.animate-color-cycle-2 {
+  animation: color-cycle 6s ease-in-out infinite;
+  animation-delay: 0.4s;
+}
+
+.animate-color-cycle-3 {
+  animation: color-cycle 6s ease-in-out infinite;
+  animation-delay: 0.8s;
+}
+
+.animate-color-cycle-4 {
+  animation: color-cycle 6s ease-in-out infinite;
+  animation-delay: 1.2s;
+}
