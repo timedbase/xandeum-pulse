@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ChatbotProvider } from "@/contexts/ChatbotContext";
-import { AutoSync } from "@/services/sync";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Docs from "./pages/Docs";
@@ -23,20 +21,7 @@ const queryClient = new QueryClient({
   },
 });
 
-// Get sync interval from environment (default 60 seconds)
-const SYNC_INTERVAL = parseInt(import.meta.env.VITE_SYNC_INTERVAL || '60000', 10);
-
 const App = () => {
-  useEffect(() => {
-    // Initialize auto-sync on app mount
-    const autoSync = new AutoSync(SYNC_INTERVAL);
-    autoSync.start();
-
-    // Cleanup on unmount
-    return () => {
-      autoSync.stop();
-    };
-  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

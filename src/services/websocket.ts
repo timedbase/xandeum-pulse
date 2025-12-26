@@ -1,8 +1,10 @@
 /**
  * WebSocket service for real-time pNode updates
+ *
+ * NOTE: WebSocket is disabled by default (VITE_ENABLE_WEBSOCKET=false)
+ * Frontend uses Supabase Realtime instead for live updates
  */
 
-import { API_CONFIG } from '@/config/api';
 import type { PNode, NetworkStats } from '@/types/pnode';
 
 export type WebSocketMessage =
@@ -23,7 +25,7 @@ export class WebSocketClient {
   private isConnecting = false;
   private shouldReconnect = true;
 
-  constructor(private url: string = API_CONFIG.wsEndpoint) {}
+  constructor(private url: string = import.meta.env.VITE_PRPC_WS_ENDPOINT || 'ws://localhost:6000') {}
 
   /**
    * Connect to WebSocket server
