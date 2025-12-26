@@ -10,6 +10,19 @@ interface AdvancedAnalyticsProps {
 }
 
 export function AdvancedAnalytics({ nodes }: AdvancedAnalyticsProps) {
+  // Early return if no nodes
+  if (!nodes || nodes.length === 0) {
+    return (
+      <Card className="p-12 text-center">
+        <Activity className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+        <h3 className="text-lg font-semibold mb-2">No Data Available</h3>
+        <p className="text-muted-foreground">
+          No nodes found to analyze. Please check your connection or wait for data to sync.
+        </p>
+      </Card>
+    );
+  }
+
   const analytics = useMemo(() => {
     // Performance distribution (calculate uptime percentage from uptimeSeconds)
     const performanceBuckets = {
