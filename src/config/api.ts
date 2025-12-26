@@ -44,9 +44,6 @@ export const API_CONFIG = {
   maxRetries: 3,
   retryDelay: 1000, // 1 second
 
-  // Enable mock data mode (disable when real API is available)
-  useMockData: import.meta.env.VITE_USE_MOCK_DATA !== 'false',
-
   // Network configuration
   network: import.meta.env.VITE_NETWORK || 'devnet',
 

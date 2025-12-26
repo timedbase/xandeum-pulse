@@ -607,9 +607,9 @@ VITE_SUPABASE_ANON_KEY=your-anon-key`}</pre>
                     Configure the platform using environment variables:
                   </p>
                   <div className="bg-muted/20 p-3 sm:p-4 lg:p-3 rounded-lg font-mono text-xs space-y-1">
-                    <div><span className="text-blue-400">VITE_PRPC_ENDPOINT</span>=http://localhost:6000</div>
-                    <div><span className="text-blue-400">VITE_PRPC_WS_ENDPOINT</span>=ws://localhost:6000</div>
-                    <div><span className="text-blue-400">VITE_USE_MOCK_DATA</span>=false</div>
+                    <div><span className="text-blue-400">VITE_SUPABASE_URL</span>=https://your-project.supabase.co</div>
+                    <div><span className="text-blue-400">VITE_SUPABASE_ANON_KEY</span>=your-anon-key</div>
+                    <div><span className="text-blue-400">VITE_PRPC_ENDPOINT</span>=http://localhost:6000/rpc</div>
                     <div><span className="text-blue-400">VITE_POLLING_INTERVAL</span>=30000</div>
                   </div>
                 </div>

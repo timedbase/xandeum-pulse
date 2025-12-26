@@ -195,7 +195,7 @@ export class WebSocketClient {
 export const wsClient = new WebSocketClient();
 
 // Auto-connect if enabled
-if (import.meta.env.VITE_ENABLE_WEBSOCKET === 'true' && !API_CONFIG.useMockData) {
+if (import.meta.env.VITE_ENABLE_WEBSOCKET === 'true') {
   wsClient.connect().catch(error => {
     console.error('Failed to connect to WebSocket:', error);
   });

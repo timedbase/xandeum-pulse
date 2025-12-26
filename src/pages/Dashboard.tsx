@@ -17,7 +17,6 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RefreshCw, BarChart3, GitCompare, Globe } from 'lucide-react';
 import { useRefreshData } from '@/hooks/useRpcQuery';
-import { API_CONFIG } from '@/config/api';
 
 const Dashboard = () => {
   const { data: nodes, isLoading: nodesLoading, error: nodesError, refetch: refetchNodes } = useClusterNodes();
@@ -141,22 +140,6 @@ const Dashboard = () => {
             {nodes && <NodeComparison nodes={nodes} />}
           </TabsContent>
         </Tabs>
-
-        {/* API Info Notice */}
-        {API_CONFIG.useMockData && (
-          <section className="glass rounded-lg border border-border/50 p-6 text-center space-y-2">
-            <p className="text-sm text-muted-foreground">
-              This dashboard displays mock data for demonstration purposes.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              To connect to live pNode data, configure the pRPC endpoint in your .env file
-            </p>
-            <p className="text-xs text-muted-foreground/60 mt-2">
-              Set <code className="font-mono bg-primary/10 px-1.5 py-0.5 rounded">VITE_USE_MOCK_DATA=false</code> and{' '}
-              <code className="font-mono bg-primary/10 px-1.5 py-0.5 rounded">VITE_PRPC_ENDPOINT=your_endpoint</code> in .env
-            </p>
-          </section>
-        )}
       </div>
     </MainLayout>
   );

@@ -7,7 +7,6 @@ import { API_CONFIG } from '@/config/api';
 import { supabase } from '@/config/supabase';
 import type { PNode } from '@/types/pnode';
 
-const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true';
 const PRPC_ENDPOINT = API_CONFIG.primaryEndpoint;
 
 export interface SyncResponse {
@@ -80,11 +79,11 @@ async function fetchFromEndpoint(endpoint: string): Promise<PNode[]> {
  * Sync pNode data from pRPC to Supabase
  */
 export async function triggerSync(): Promise<SyncResponse> {
-  if (USE_MOCK_DATA || !supabase) {
-    console.warn('[Sync] Mock mode or Supabase not configured, skipping sync');
+  if (!supabase) {
+    console.warn('[Sync] Supabase not configured, skipping sync');
     return {
       success: false,
-      error: 'Mock mode or Supabase not configured',
+      error: 'Supabase not configured',
     };
   }
 

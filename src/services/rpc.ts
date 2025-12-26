@@ -12,9 +12,7 @@
  * pNode data through Supabase, maintaining separation of concerns.
  */
 
-import { API_CONFIG } from '@/config/api';
 import type { PNode, NetworkStats, ClusterInfo } from '@/types/pnode';
-import { generateMockPNodes, calculateNetworkStats, generateClusterInfo } from '@/lib/mock-data';
 import { getAllPNodes, isSupabaseConfigured, getNetworkStatsHistory } from './supabase';
 
 export class RpcError extends Error {
@@ -28,13 +26,67 @@ export class RpcError extends Error {
   }
 }
 
+// Utility function to calculate network stats from nodes
+function calculateNetworkStats(nodes: PNode[]): NetworkStats {
+  const onlineNodes = nodes.filter(n => n.status === 'online').length;
+
+  // Calculate storage totals (already in bytes)
+  const totalStorageCommitted = nodes.reduce((acc, n) => acc + (n.storageCommitted || 0), 0);
+  const totalStorageUsed = nodes.reduce((acc, n) => acc + (n.storageUsed || 0), 0);
+  const avgStorageUsagePercent = totalStorageCommitted > 0
+    ? (totalStorageUsed / totalStorageCommitted) * 100
+    : 0;
+
+  // Calculate average uptime in seconds
+  const avgUptimeSeconds = nodes.length > 0
+    ? nodes.reduce((acc, n) => acc + (n.uptimeSeconds || 0), 0) / nodes.length
+    : 0;
+
+  // Calculate average CPU and RAM
+  const nodesWithCpu = nodes.filter(n => n.cpuPercent !== undefined && n.cpuPercent !== null);
+  const avgCpuPercent = nodesWithCpu.length > 0
+    ? nodesWithCpu.reduce((acc, n) => acc + (n.cpuPercent || 0), 0) / nodesWithCpu.length
+    : undefined;
+
+  const nodesWithRam = nodes.filter(n => n.ramUsed !== undefined && n.ramTotal !== undefined);
+  const avgRamUsagePercent = nodesWithRam.length > 0
+    ? nodesWithRam.reduce((acc, n) => {
+        const ramPercent = n.ramTotal! > 0 ? (n.ramUsed! / n.ramTotal!) * 100 : 0;
+        return acc + ramPercent;
+      }, 0) / nodesWithRam.length
+    : undefined;
+
+  const totalActiveStreams = nodes.reduce((acc, n) => acc + (n.activeStreams || 0), 0);
+
+  return {
+    totalNodes: nodes.length,
+    onlineNodes,
+    totalStorageCommitted,
+    totalStorageUsed,
+    avgStorageUsagePercent: Math.round(avgStorageUsagePercent * 100) / 100,
+    avgUptimeSeconds: Math.round(avgUptimeSeconds),
+    avgCpuPercent: avgCpuPercent ? Math.round(avgCpuPercent * 100) / 100 : undefined,
+    avgRamUsagePercent: avgRamUsagePercent ? Math.round(avgRamUsagePercent * 100) / 100 : undefined,
+    totalActiveStreams,
+    networkVersion: 'v0.6 Stuttgart',
+  };
+}
+
+// Utility function to generate cluster info
+function generateClusterInfo(): ClusterInfo {
+  const randomInRange = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+  const slot = randomInRange(280000000, 290000000);
+  return {
+    epoch: Math.floor(slot / 432000),
+    slot: slot % 432000,
+    blockHeight: slot - randomInRange(1000, 5000),
+    absoluteSlot: slot,
+  };
+}
+
 export class RpcClient {
   constructor() {
     console.log('[Frontend] Data service initialized - reading from Supabase only');
-  }
-
-  private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   // NOTE: Frontend does NOT make direct pRPC calls
@@ -45,35 +97,27 @@ export class RpcClient {
    * Get all pNodes from network (Supabase only - no direct pRPC calls)
    */
   async getClusterNodes(): Promise<PNode[]> {
-    if (API_CONFIG.useMockData) {
-      console.log('[RPC] Using MOCK data (VITE_USE_MOCK_DATA=true)');
-      await this.delay(500);
-      const mockNodes = generateMockPNodes(42);
-      console.log('[RPC] Generated', mockNodes.length, 'mock nodes. First node credits:', mockNodes[0]?.credits);
-      return mockNodes;
-    }
-
     // Frontend only reads from Supabase
-    // pRPC calls are handled by Vercel Functions which populate Supabase
+    // pRPC calls are handled by backend sync service which populates Supabase
     if (!isSupabaseConfigured()) {
       throw new RpcError(
-        'Supabase not configured. Frontend requires Supabase to be set up. pRPC data is fetched by Vercel Functions.',
+        'Supabase not configured. Frontend requires Supabase to be set up.',
         503
       );
     }
 
     try {
-      console.log('[RPC] Fetching from Supabase (VITE_USE_MOCK_DATA=false)');
+      console.log('[RPC] Fetching from Supabase');
       const nodes = await getAllPNodes();
       if (!nodes || nodes.length === 0) {
-        console.warn('No nodes found in Supabase. Ensure Vercel Functions are running to populate data.');
+        console.warn('No nodes found in Supabase. Ensure backend sync service is running to populate data.');
       }
       console.log('[RPC] Fetched', nodes.length, 'nodes from Supabase. First node credits:', nodes[0]?.credits);
       return nodes;
     } catch (error) {
       console.error('Failed to fetch from Supabase:', error);
       throw new RpcError(
-        'Failed to fetch nodes from Supabase. Check your Supabase configuration and ensure Vercel Functions are populating data.',
+        'Failed to fetch nodes from Supabase. Check your Supabase configuration and ensure backend sync service is running.',
         503
       );
     }
@@ -83,12 +127,6 @@ export class RpcClient {
    * Get information about a specific pNode (Supabase only)
    */
   async getNodeInfo(pubkey: string): Promise<PNode | null> {
-    if (API_CONFIG.useMockData) {
-      await this.delay(300);
-      const nodes = generateMockPNodes(42);
-      return nodes.find(node => node.pubkey === pubkey) || null;
-    }
-
     // Frontend only reads from Supabase
     const nodes = await this.getClusterNodes();
     return nodes.find(node => node.pubkey === pubkey) || null;
@@ -98,12 +136,6 @@ export class RpcClient {
    * Get network statistics (Supabase only)
    */
   async getNetworkStats(): Promise<NetworkStats> {
-    if (API_CONFIG.useMockData) {
-      await this.delay(200);
-      const nodes = generateMockPNodes(42);
-      return calculateNetworkStats(nodes);
-    }
-
     // Frontend only reads from Supabase
     try {
       // Try to get recent stats first
@@ -140,12 +172,7 @@ export class RpcClient {
    * Get cluster information
    */
   async getClusterInfo(): Promise<ClusterInfo> {
-    if (API_CONFIG.useMockData) {
-      await this.delay(200);
-      return generateClusterInfo();
-    }
-
-    // Try Supabase first - generate cluster info from nodes
+    // Generate cluster info from current data
     if (isSupabaseConfigured()) {
       try {
         const nodes = await getAllPNodes();
@@ -153,11 +180,11 @@ export class RpcClient {
           return generateClusterInfo();
         }
       } catch (error) {
-        console.warn('Failed to fetch from Supabase, falling back to direct pRPC:', error);
+        console.warn('Failed to fetch from Supabase:', error);
       }
     }
 
-    // Generate cluster info (pRPC doesn't provide this directly)
+    // Generate cluster info
     return generateClusterInfo();
   }
 
@@ -173,10 +200,6 @@ export class RpcClient {
    */
   async healthCheck(): Promise<boolean> {
     try {
-      if (API_CONFIG.useMockData) {
-        return true;
-      }
-
       // Check if Supabase is configured and accessible
       if (!isSupabaseConfigured()) {
         return false;

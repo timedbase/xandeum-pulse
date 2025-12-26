@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import type { PNode } from '@/types/pnode';
-import { generateStorageHistory, generateUptimeHistory, generateNetworkGrowth, getRegionStats, regionCoordinates } from '@/lib/mock-data';
+import { generateStorageHistory, generateUptimeHistory, generateNetworkGrowth, getRegionStats, regionCoordinates } from '@/lib/chart-utils';
 import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from 'react-simple-maps';
 
 const geoUrl = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
