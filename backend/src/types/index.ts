@@ -53,6 +53,9 @@ export interface NetworkStats {
   avgRamUsagePercent?: number;
   totalActiveStreams?: number;
 
+  // Credits aggregate
+  totalCredits?: number;
+
   networkVersion: string;
 }
 
@@ -170,6 +173,7 @@ export interface DbNetworkStatsRecord {
   avg_cpu_percent: number | null;
   avg_ram_usage_percent: number | null;
   total_active_streams: number | null;
+  total_credits: number | null;
   network_version: string;
 }
 

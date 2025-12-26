@@ -159,6 +159,12 @@ export class SyncService {
 
     const totalActiveStreams = nodes.reduce((sum, n) => sum + (n.activeStreams || 0), 0);
 
+    // Credits aggregate
+    const nodesWithCredits = nodes.filter(n => n.credits !== undefined && n.credits !== null);
+    const totalCredits = nodesWithCredits.length > 0
+      ? nodesWithCredits.reduce((sum, n) => sum + (n.credits || 0), 0)
+      : undefined;
+
     const networkVersion = nodes[0]?.version || 'unknown';
 
     return {
@@ -171,6 +177,7 @@ export class SyncService {
       avgCpuPercent: avgCpuPercent !== undefined ? Number(avgCpuPercent.toFixed(2)) : undefined,
       avgRamUsagePercent: avgRamUsagePercent !== undefined ? Number(avgRamUsagePercent.toFixed(2)) : undefined,
       totalActiveStreams: totalActiveStreams > 0 ? totalActiveStreams : undefined,
+      totalCredits,
       networkVersion,
     };
   }
@@ -189,6 +196,7 @@ export class SyncService {
         avg_cpu_percent: stats.avgCpuPercent || null,
         avg_ram_usage_percent: stats.avgRamUsagePercent || null,
         total_active_streams: stats.totalActiveStreams || null,
+        total_credits: stats.totalCredits || null,
         network_version: stats.networkVersion,
       };
 

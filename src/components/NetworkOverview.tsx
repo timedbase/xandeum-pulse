@@ -1,4 +1,4 @@
-import { Server, HardDrive, Cpu, TrendingUp, Users } from 'lucide-react';
+import { Server, HardDrive, Cpu, TrendingUp, Users, Coins } from 'lucide-react';
 import { StatCard } from './StatCard';
 import type { NetworkStats } from '@/types/pnode';
 
@@ -22,6 +22,14 @@ function formatUptime(seconds: number | null | undefined): string {
   if (hours < 24) return `${hours}h`;
   const days = Math.floor(hours / 24);
   return `${days}d`;
+}
+
+// Helper to format credits to human-readable format
+function formatCredits(credits: number | null | undefined): string {
+  if (credits === null || credits === undefined) return 'N/A';
+  if (credits >= 1000000) return `${(credits / 1000000).toFixed(1)}M`;
+  if (credits >= 1000) return `${(credits / 1000).toFixed(1)}K`;
+  return credits.toLocaleString();
 }
 
 export function NetworkOverview({ stats }: NetworkOverviewProps) {
@@ -73,6 +81,15 @@ export function NetworkOverview({ stats }: NetworkOverviewProps) {
             value={`${stats.avgCpuPercent.toFixed(1)}%`}
             subtitle="Network load"
             icon={<Cpu className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-3.5 lg:h-3.5" />}
+          />
+        )}
+
+        {stats.totalCredits !== undefined && stats.totalCredits !== null && (
+          <StatCard
+            title="Total Credits"
+            value={formatCredits(stats.totalCredits)}
+            subtitle="Network credits"
+            icon={<Coins className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-3.5 lg:h-3.5" />}
           />
         )}
       </div>

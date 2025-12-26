@@ -52,6 +52,9 @@ export interface NetworkStats {
   avgRamUsagePercent?: number;
   totalActiveStreams?: number;
 
+  // Credits aggregate
+  totalCredits?: number;
+
   networkVersion: string;
 }
 
