@@ -290,12 +290,19 @@ export function NetworkCharts({ nodes }: NetworkChartsProps) {
                               <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">Storage:</span>
                                 <span className="font-mono text-foreground">
-                                  {(node.storageUsed / (1024 ** 3)).toFixed(0)} / {(node.storageCommitted / (1024 ** 3)).toFixed(0)} GB
+                                  {node.storageUsed !== undefined && node.storageUsed !== null &&
+                                   node.storageCommitted !== undefined && node.storageCommitted !== null
+                                    ? `${(node.storageUsed / (1024 ** 3)).toFixed(0)} / ${(node.storageCommitted / (1024 ** 3)).toFixed(0)} GB`
+                                    : 'N/A'}
                                 </span>
                               </div>
                               <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">Usage:</span>
-                                <span className="font-mono text-foreground">{node.storageUsagePercent.toFixed(1)}%</span>
+                                <span className="font-mono text-foreground">
+                                  {node.storageUsagePercent !== undefined && node.storageUsagePercent !== null
+                                    ? `${node.storageUsagePercent.toFixed(1)}%`
+                                    : 'N/A'}
+                                </span>
                               </div>
                               {node.cpuPercent !== undefined && (
                                 <div className="flex items-center justify-between">

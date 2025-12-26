@@ -138,9 +138,13 @@ export function NotificationSystem({ nodes }: NotificationSystemProps) {
         }
 
         // Low storage
-        const storageRemaining = node.storageCapacity - node.storageUsed;
+        const storageRemaining = node.storageCommitted && node.storageUsed
+          ? (node.storageCommitted - node.storageUsed) / (1024 ** 3)
+          : 0;
         if (storageRemaining < prefs.storageThreshold && prefs.lowStorage) {
-          const prevRemaining = previous.storageCapacity - previous.storageUsed;
+          const prevRemaining = previous.storageCommitted && previous.storageUsed
+            ? (previous.storageCommitted - previous.storageUsed) / (1024 ** 3)
+            : 0;
           if (prevRemaining >= prefs.storageThreshold) {
             createNotification(
               'low_storage',
@@ -152,9 +156,13 @@ export function NotificationSystem({ nodes }: NotificationSystemProps) {
         }
 
         // High utilization
-        const utilization = (node.storageUsed / node.storageCapacity) * 100;
+        const utilization = node.storageUsed && node.storageCommitted && node.storageCommitted > 0
+          ? (node.storageUsed / node.storageCommitted) * 100
+          : 0;
         if (utilization >= prefs.utilizationThreshold && prefs.highUtilization) {
-          const prevUtilization = (previous.storageUsed / previous.storageCapacity) * 100;
+          const prevUtilization = previous.storageUsed && previous.storageCommitted && previous.storageCommitted > 0
+            ? (previous.storageUsed / previous.storageCommitted) * 100
+            : 0;
           if (prevUtilization < prefs.utilizationThreshold) {
             createNotification(
               'high_utilization',

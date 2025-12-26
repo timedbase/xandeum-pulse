@@ -177,7 +177,11 @@ export function NodeComparison({ nodes }: NodeComparisonProps) {
                   {selectedNodes.map((node, idx) => (
                     <td key={node.pubkey} className="py-3 px-4">
                       <div className="flex items-center justify-center gap-2">
-                        <span className="text-sm font-medium">{node.credits.toLocaleString()}</span>
+                        <span className="text-sm font-medium">
+                          {node.credits !== undefined && node.credits !== null
+                            ? node.credits.toLocaleString()
+                            : 'N/A'}
+                        </span>
                         <ComparisonIndicator status={creditsComparison[idx]} />
                       </div>
                     </td>
@@ -192,7 +196,9 @@ export function NodeComparison({ nodes }: NodeComparisonProps) {
                   </td>
                   {selectedNodes.map(node => (
                     <td key={node.pubkey} className="py-3 px-4 text-center text-sm">
-                      {(node.storageCapacity / 1000).toFixed(1)} TB
+                      {node.storageCommitted !== undefined && node.storageCommitted !== null
+                        ? (node.storageCommitted / (1024 ** 4)).toFixed(1) + ' TB'
+                        : 'N/A'}
                     </td>
                   ))}
                 </tr>
@@ -201,7 +207,9 @@ export function NodeComparison({ nodes }: NodeComparisonProps) {
                   <td className="py-3 px-2 text-sm font-medium">Storage Used</td>
                   {selectedNodes.map(node => (
                     <td key={node.pubkey} className="py-3 px-4 text-center text-sm">
-                      {(node.storageUsed / 1000).toFixed(1)} TB
+                      {node.storageUsed !== undefined && node.storageUsed !== null
+                        ? (node.storageUsed / (1024 ** 4)).toFixed(1) + ' TB'
+                        : 'N/A'}
                     </td>
                   ))}
                 </tr>
@@ -209,12 +217,18 @@ export function NodeComparison({ nodes }: NodeComparisonProps) {
                 <tr>
                   <td className="py-3 px-2 text-sm font-medium">Storage Utilization</td>
                   {selectedNodes.map((node, idx) => {
-                    const util = (node.storageUsed / node.storageCapacity) * 100;
+                    const util = node.storageUsed !== undefined && node.storageUsed !== null &&
+                                 node.storageCommitted !== undefined && node.storageCommitted !== null &&
+                                 node.storageCommitted > 0
+                      ? (node.storageUsed / node.storageCommitted) * 100
+                      : 0;
                     return (
                       <td key={node.pubkey} className="py-3 px-4">
                         <div className="flex flex-col items-center gap-1">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium">{util.toFixed(1)}%</span>
+                            <span className="text-sm font-medium">
+                              {util > 0 ? util.toFixed(1) + '%' : 'N/A'}
+                            </span>
                             <ComparisonIndicator status={storageUtilComparison[idx]} />
                           </div>
                           <Progress value={util} className="w-full h-1" />

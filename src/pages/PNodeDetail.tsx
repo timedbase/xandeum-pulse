@@ -151,7 +151,11 @@ const PNodeDetail = () => {
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground">Credits</p>
             </div>
-            <p className="text-base sm:text-lg lg:text-xl font-bold">{(node.credits / 1000).toFixed(1)}K</p>
+            <p className="text-base sm:text-lg lg:text-xl font-bold">
+              {node.credits !== undefined && node.credits !== null
+                ? (node.credits / 1000).toFixed(1) + 'K'
+                : 'N/A'}
+            </p>
             <p className="text-[9px] sm:text-[10px] text-muted-foreground">XAND</p>
           </Card>
 
@@ -244,7 +248,11 @@ const PNodeDetail = () => {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Credits</p>
-                  <p className="text-lg sm:text-xl font-bold">{node.credits.toLocaleString()}</p>
+                  <p className="text-lg sm:text-xl font-bold">
+                    {node.credits !== undefined && node.credits !== null
+                      ? node.credits.toLocaleString()
+                      : 'N/A'}
+                  </p>
                 </div>
               </div>
             </Card>
@@ -274,15 +282,28 @@ const PNodeDetail = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 lg:gap-4">
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground">Total Capacity</p>
-              <p className="text-xl sm:text-2xl lg:text-2xl font-bold">{Math.round(node.storageCommitted / (1024 ** 3)).toLocaleString()} <span className="text-sm sm:text-base text-muted-foreground">GB</span></p>
+              <p className="text-xl sm:text-2xl lg:text-2xl font-bold">
+                {node.storageCommitted !== undefined && node.storageCommitted !== null
+                  ? Math.round(node.storageCommitted / (1024 ** 3)).toLocaleString()
+                  : '0'} <span className="text-sm sm:text-base text-muted-foreground">GB</span>
+              </p>
             </div>
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground">Used Storage</p>
-              <p className="text-xl sm:text-2xl lg:text-2xl font-bold text-primary">{Math.round(node.storageUsed / (1024 ** 3)).toLocaleString()} <span className="text-sm sm:text-base text-muted-foreground">GB</span></p>
+              <p className="text-xl sm:text-2xl lg:text-2xl font-bold text-primary">
+                {node.storageUsed !== undefined && node.storageUsed !== null
+                  ? Math.round(node.storageUsed / (1024 ** 3)).toLocaleString()
+                  : '0'} <span className="text-sm sm:text-base text-muted-foreground">GB</span>
+              </p>
             </div>
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground">Available</p>
-              <p className="text-xl sm:text-2xl lg:text-2xl font-bold text-success">{Math.round((node.storageCommitted - node.storageUsed) / (1024 ** 3)).toLocaleString()} <span className="text-sm sm:text-base text-muted-foreground">GB</span></p>
+              <p className="text-xl sm:text-2xl lg:text-2xl font-bold text-success">
+                {node.storageCommitted !== undefined && node.storageCommitted !== null &&
+                 node.storageUsed !== undefined && node.storageUsed !== null
+                  ? Math.round((node.storageCommitted - node.storageUsed) / (1024 ** 3)).toLocaleString()
+                  : '0'} <span className="text-sm sm:text-base text-muted-foreground">GB</span>
+              </p>
             </div>
           </div>
 

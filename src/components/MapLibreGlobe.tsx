@@ -264,11 +264,20 @@ export function MapLibreGlobe({ nodes }: MapLibreGlobeProps) {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Storage:</span>
-                  <span className="font-medium">{popupInfo.stats.storage.toFixed(1)} GB</span>
+                  <span className="font-medium">
+                    {popupInfo.stats.storage !== undefined && popupInfo.stats.storage !== null
+                      ? `${popupInfo.stats.storage.toFixed(1)} GB`
+                      : 'N/A'}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Avg Uptime:</span>
-                  <span className="font-medium">{(popupInfo.stats.uptime / popupInfo.stats.total).toFixed(1)}%</span>
+                  <span className="font-medium">
+                    {popupInfo.stats.uptime !== undefined && popupInfo.stats.uptime !== null &&
+                     popupInfo.stats.total > 0
+                      ? `${(popupInfo.stats.uptime / popupInfo.stats.total).toFixed(1)}%`
+                      : 'N/A'}
+                  </span>
                 </div>
               </div>
             </div>

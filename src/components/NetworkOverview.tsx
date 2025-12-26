@@ -7,8 +7,8 @@ interface NetworkOverviewProps {
 }
 
 // Helper to format bytes to human-readable format
-function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B';
+function formatBytes(bytes: number | null | undefined): string {
+  if (bytes === null || bytes === undefined || bytes === 0) return '0 B';
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -16,7 +16,8 @@ function formatBytes(bytes: number): string {
 }
 
 // Helper to format seconds to hours/days
-function formatUptime(seconds: number): string {
+function formatUptime(seconds: number | null | undefined): string {
+  if (seconds === null || seconds === undefined) return '0h';
   const hours = Math.floor(seconds / 3600);
   if (hours < 24) return `${hours}h`;
   const days = Math.floor(hours / 24);
@@ -52,7 +53,9 @@ export function NetworkOverview({ stats }: NetworkOverviewProps) {
 
         <StatCard
           title="Used"
-          value={`${stats.avgStorageUsagePercent.toFixed(1)}%`}
+          value={stats.avgStorageUsagePercent !== undefined && stats.avgStorageUsagePercent !== null
+            ? `${stats.avgStorageUsagePercent.toFixed(1)}%`
+            : 'N/A'}
           subtitle="Avg usage"
           icon={<HardDrive className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-3.5 lg:h-3.5" />}
         />

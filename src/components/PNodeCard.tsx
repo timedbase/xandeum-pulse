@@ -12,8 +12,8 @@ interface PNodeCardProps {
 }
 
 // Helper to format bytes to human-readable format
-function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B';
+function formatBytes(bytes: number | null | undefined): string {
+  if (bytes === null || bytes === undefined || bytes === 0) return '0 B';
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -21,7 +21,8 @@ function formatBytes(bytes: number): string {
 }
 
 // Helper to format uptime seconds to hours/days
-function formatUptime(seconds: number): string {
+function formatUptime(seconds: number | null | undefined): string {
+  if (seconds === null || seconds === undefined) return '0h';
   const hours = Math.floor(seconds / 3600);
   if (hours < 24) return `${hours}h`;
   const days = Math.floor(hours / 24);
